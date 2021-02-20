@@ -19,10 +19,7 @@ public class main {
 		ArrayList<Producto> buzonConsumidores = new ArrayList<>();
 		ArrayList<Producto> buzonIntermedio = new ArrayList<>();
 
-		Intermedio i1 = new Intermedio(true, numProductoresYConsumidores*numProductos, buzonProductores, buzonIntermedio);
-		Intermedio i2 = new Intermedio(false, numProductoresYConsumidores*numProductos, buzonConsumidores, buzonIntermedio);
 
-		i1.start(); i2.start();
 
 		for(int i = 0; i<numProductoresYConsumidores/2; i++){
 			new Productor(numProductos, true, buzonProductores, espaciosSobrantesBuzonProductores).start();
@@ -32,7 +29,10 @@ public class main {
 			new Consumidor(numProductos, true, buzonConsumidores, espaciosSobrantesBuzonConsumidores).start();
 
 		}
+		Intermedio i1 = new Intermedio(true, numProductoresYConsumidores*numProductos, buzonProductores, buzonIntermedio);
+		Intermedio i2 = new Intermedio(false, numProductoresYConsumidores*numProductos, buzonConsumidores, buzonIntermedio);
 
+		i1.start(); i2.start();
 
 	}
 

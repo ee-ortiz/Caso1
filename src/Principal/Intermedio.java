@@ -19,8 +19,29 @@ public class Intermedio extends Thread{
 
 	public void run(){
 
+		System.out.println("Tamaño buzon Productor:" + buzon.size());
 		if(izquierda){
 			// lo que hace el intermediario de la izquierda
+//			if(conteo ==0 ||buzon.isEmpty())
+//			{
+//				try{
+//					
+//					wait();
+//					
+//				}catch(InterruptedException e){
+//					e.printStackTrace();
+//				}
+//			}
+						
+			
+			while(!buzon.isEmpty()){
+				conteo--;
+				
+				Producto p=  buzon.remove(0);
+				buzonIntermedio.add(p);
+			}
+			System.out.println("Tamaño bIntermedio:" +buzonIntermedio.size());
+			
 		}
 
 		else{
@@ -28,5 +49,6 @@ public class Intermedio extends Thread{
 		}
 
 	}
+
 
 }
