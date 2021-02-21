@@ -2,69 +2,93 @@ package Principal;
 
 import java.util.ArrayList;
 
+
 public class Productor extends Thread{
 
-	private int maxProductos;
+	private static Carga carga = new Carga();
+	private int maxProductos = carga.getNumProductos(); // numero de productos que produce el productor
 	private boolean tipoA; // si el atributo es falso será de tipo B
-	private static ArrayList<Producto> buzonProductores;
-	private static int tamanoBuzon; // espacios que sobran en el buzon
+	private static ArrayList<Producto> buzonProductores; // todos los productores comparten los buzones
+	private static int tamanoBuzon = carga.getEspaciosSobrantesBuzonProductores(); // numero de buzones totales
 
 
 
-	public Productor(int maxProductos, boolean tipo, ArrayList<Producto> buzon, int tamanoBuzon){
-
-		this.maxProductos = maxProductos;
+	public Productor(boolean tipo, ArrayList<Producto> buzon){
 		this.tipoA = tipo;
-		Productor.buzonProductores = buzon;
-		Productor.tamanoBuzon = tamanoBuzon;
-		
-
+		buzonProductores = buzon;
 	}
 
 	public void run(){
+
 		if(tipoA){
 			// lo que haría un trhead de tipo A
-			
-			int cont=maxProductos;
-			System.out.println("Tamaño antes de: "+buzonProductores.size());
-			for (int i = 0; i < maxProductos; i++) {
+
+			while (maxProductos>0) {
 				Producto p= new Producto(tipoA);
-				if(buzonProductores.size()<=tamanoBuzon)
-				{
-				buzonProductores.add(0,p);
-				maxProductos--;
+				synchronized(buzonProductores){
+					while(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
+					{
+						System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
+						Thread.yield();
+						//						try {
+						//							buzonProductores.wait();
+						//						} catch (InterruptedException e) {
+						//							// TODO Auto-generated catch block
+						//							e.printStackTrace();
+						//						}
+					}
+					buzonProductores.add(p);
+					System.out.println("Productos en el buzón productor: " + buzonProductores.size());
+					maxProductos--;
+
+					if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
+						buzonProductores.notifyAll();
+					}
 				}
-				else{
-					Thread.yield();}
 			}
 
-			System.out.println("Productor de productos tipo A. Tamaño buzon: "+ buzonProductores.size()  );
 		}
 		else{
-			// lo que haría un thread de tipo B
-			int cont=maxProductos;
 
-//			for (int i = 0; i < maxProductos; i++) {
-//				Producto p= new Producto(!tipoA);
-//				buzonProductores.add(p);
-//				maxProductos--;
-//			}
-//			if(maxProductos==0)
-//			{
-//				Thread.yield();
-//			}
-			for (int i = 0; i < maxProductos; i++) {
+			while(maxProductos>0) {
 				Producto p= new Producto(!tipoA);
-				if(buzonProductores.size()<=tamanoBuzon)
-				{
-				buzonProductores.add(0,p);
-				maxProductos--;
-				}
-				else{
-					Thread.yield();}
-			}
-			System.out.println("Productor de productos tipo B. Tamaño buzon: "+ buzonProductores.size()  );
+				synchronized(buzonProductores){
+					while(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
+					{
+						System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
+						Thread.yield();
+						//						try {
+						//							buzonProductores.wait();
+						//						} catch (InterruptedException e) {
+						//							// TODO Auto-generated catch block
+						//							e.printStackTrace();
+						//						}
+					}
+					buzonProductores.add(p);
+					System.out.println("Productos en el buzón productor: " + buzonProductores.size());
+					maxProductos--;
 
+					if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
+						buzonProductores.notifyAll();
+					}
+				}
+			}
+		}
+	}
+
+	public void agregarProductoABuzon(Producto p){
+
+		synchronized(buzonProductores){
+			while(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
+			{
+				yield();
+			}
+			buzonProductores.add(p);
+			maxProductos--;
+
+			if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
+				buzonProductores.notify();
+			}
 		}
 	}
 
