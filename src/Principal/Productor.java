@@ -22,27 +22,37 @@ public class Productor extends Thread{
 
 		if(tipoA){
 			// lo que haría un trhead de tipo A
-
+			boolean imprimir = true;
 			while (maxProductos>0) {
 				Producto p= new Producto(tipoA);
 				synchronized(buzonProductores){
-					while(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
+					if(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
 					{
-						System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
-						Thread.yield();
+						if(imprimir){
+							System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
+						}						
+						yield();
 						//						try {
 						//							buzonProductores.wait();
 						//						} catch (InterruptedException e) {
 						//							// TODO Auto-generated catch block
 						//							e.printStackTrace();
 						//						}
-					}
-					buzonProductores.add(p);
-					System.out.println("Productos en el buzón productor: " + buzonProductores.size());
-					maxProductos--;
+					}			
+				}
+				synchronized(buzonProductores){
+					if(buzonProductores.size() < tamanoBuzon){
+						buzonProductores.add(p);
+						System.out.println("Productos en el buzón productor: " + buzonProductores.size());
+						maxProductos--;
+						imprimir = true;
 
-					if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
-						buzonProductores.notifyAll();
+						if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
+							buzonProductores.notifyAll();
+						}
+					}
+					else{
+						imprimir = false;
 					}
 				}
 			}
@@ -50,26 +60,38 @@ public class Productor extends Thread{
 		}
 		else{
 
+			boolean imprimir = true;
 			while(maxProductos>0) {
 				Producto p= new Producto(!tipoA);
+
 				synchronized(buzonProductores){
-					while(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
+					if(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
 					{
-						System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
-						Thread.yield();
+						if(imprimir){
+							System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
+						}
+						yield();
 						//						try {
 						//							buzonProductores.wait();
 						//						} catch (InterruptedException e) {
 						//							// TODO Auto-generated catch block
 						//							e.printStackTrace();
 						//						}
-					}
-					buzonProductores.add(p);
-					System.out.println("Productos en el buzón productor: " + buzonProductores.size());
-					maxProductos--;
+					}			
+				}
+				synchronized(buzonProductores){
+					if(buzonProductores.size() < tamanoBuzon){
+						buzonProductores.add(p);
+						System.out.println("Productos en el buzón productor: " + buzonProductores.size());
+						maxProductos--;
+						imprimir = true;
 
-					if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
-						buzonProductores.notifyAll();
+						if(buzonProductores.size()==1){ // esto significa que el buzon estaba vacio y el nuevo add lo dejo con un elemento
+							buzonProductores.notifyAll();
+						}
+					}
+					else{
+						imprimir = false;
 					}
 				}
 			}

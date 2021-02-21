@@ -31,21 +31,23 @@ public class Intermedio extends Thread{
 						} catch (InterruptedException e) {}			
 					}
 
+				}
+				Producto deleted;
+				synchronized (buzonPoV) {
 					Producto eliminado = buzonPoV.remove(buzonPoV.size()-1); // elimina el ultimo elemento del buzon 				    
-					buzonIntermedio.add(eliminado);	// se añade al buzon intermedio el objeto extraido del buzon
-					conteo--;
-					System.out.println("Productos en intermedio: " + buzonIntermedio.size());
-					if(buzonPoV.size()==carga.getEspaciosSobrantesBuzonProductores()-1){
-						notifyAll();
-					}
+					deleted = eliminado;
+					System.out.println("Productos en el buzón productor: " + buzonPoV.size());				
 
+				}	
+
+				synchronized (buzonIntermedio) {
+					buzonIntermedio.add(deleted);	// se añade al buzon intermedio el objeto extraido del buzon
+					conteo--;
+					System.out.println("Productos en intermedio: " + buzonIntermedio.size());				
 				}
 			}
-
 			System.out.println("Tamaño buzón Intermedio: " +buzonIntermedio.size());
-
 		}
-
 		else{
 			// lo que hace el intermediario de la derecha
 		}
