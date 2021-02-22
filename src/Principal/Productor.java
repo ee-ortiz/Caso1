@@ -23,15 +23,18 @@ public class Productor extends Thread{
 		boolean imprimir = true; // se utiliza este imprimir para saltar muchas posibles impresiones en pantalla que repetiran la misma informacion debido al yield
 		while (maxProductos>0) {
 			Producto p= new Producto(tipoA); // se crea el producto
-			synchronized(buzonProductores){
-				if(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
-				{
-					if(imprimir){
-						System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
-					}						
-					yield(); // espera semi-activa a que el buzon no este lleno para poder meter productos en el
-				}			
-			}
+			while(buzonProductores.size() == tamanoBuzon) // si todos los buzones están llenos
+			{
+				if(imprimir){
+					synchronized(buzonProductores){
+						if(buzonProductores.size() == tamanoBuzon){
+							System.out.println("Buzón productor lleno: " +buzonProductores.size() +" de " + tamanoBuzon);
+							imprimir = false; // no es necesario imprimir más en pantalla el stado de un buzón productor
+						}
+					}
+				}						
+				yield(); // espera semi-activa a que el buzon no este lleno para poder meter productos en el
+			}			
 			synchronized(buzonProductores){
 				if(buzonProductores.size() < tamanoBuzon){ // si el buzón no está lleno
 					buzonProductores.add(p); // se añade un producto a el

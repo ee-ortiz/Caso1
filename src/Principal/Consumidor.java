@@ -20,19 +20,23 @@ public class Consumidor extends Thread{
 
 	public void run(){
 
-
 		boolean imprimir = true; // se utiliza este imprimir para saltar muchas posibles impresiones en pantalla que repetiran la misma informacion debido al yield
+
 		while (maxProductos>0) {
 
-			synchronized(buzonConsumidores){
-				if(buzonConsumidores.size() == 0) // no hay productos que consumir
-				{
-					if(imprimir){
-						System.out.println("Buzón consumidor vacio, esperando a que haya un producto...");
-					}						
-					yield(); // espera semi-activa a que el buzón tenga elementos que consumir
-				}			
-			}
+			while(buzonConsumidores.size() == 0) // no hay productos que consumir
+			{
+				if(imprimir){
+					synchronized(buzonConsumidores){
+						if(buzonConsumidores.size() == 0){
+							System.out.println("Buzón consumidor vacio, esperando a que haya un producto...");
+							imprimir = false; // no es neceario imprimir mas en pantalla el estado de buzón consumidor
+						}
+					}
+				}						
+				yield(); // espera semi-activa a que el buzón tenga elementos que consumir
+			}			
+
 			synchronized(buzonConsumidores){
 				if(buzonConsumidores.size() > 0){ // si luego de que termine el yield el buzon tiene elementos continua la operacion de consumir
 
