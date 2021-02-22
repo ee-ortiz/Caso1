@@ -8,7 +8,6 @@ public class Producto {
 		this.tipoA = tipo;
 	}
 
-
 	public boolean darTipo(){
 		return tipoA;
 	}
